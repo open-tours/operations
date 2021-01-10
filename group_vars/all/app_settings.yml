@@ -1,0 +1,16 @@
+---
+project_name: "opentours"
+domain_name: "opentours.net"
+admin_email: "boerni@gmail.com"
+app_home: "/opt/{{ project_name }}"
+app_dir: "{{ app_home }}/appserver"
+frontend_dir: "{{ app_home }}/frontend"
+app_user: "opentours"
+app_db_name: "opentours"
+app_db_user: "opentours"
+manage_py: "python3 {{app_dir}}/manage.py"
+static_dir: "{{ app_home }}/var/static"
+gunicorn_port: 8000
+app_wsgi: "config.wsgi"
+gunicorn_service_name: "gunicorn.{{ project_name }}"
+gunicorn_service_file: "/etc/systemd/system/{{ gunicorn_service_name }}.service"

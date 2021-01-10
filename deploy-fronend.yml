@@ -1,0 +1,21 @@
+---
+- hosts: [reverse_proxy]
+  remote_user: "{{ remote_user }}"
+
+  tasks:
+    - name: git checkout
+      become: true
+      become_user: "{{ app_user }}"
+      git:
+        repo: 'https://github.com/open-tours/frontend.git'
+        dest: "{{ frontend_dir }}"
+        force: true
+        version: main
+
+    - name: yarn install
+      become: true
+      command: "chdir={{ frontend_dir }} yarnpkg install"
+
+    - name: yarn build
+      become: true
+      command: "chdir={{ frontend_dir }} yarnpkg build"

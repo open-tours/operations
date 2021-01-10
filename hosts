@@ -1,0 +1,10 @@
+[reverse_proxy]
+reverseproxy-01.prod.opentours.net lan_ip=10.0.0.2
+
+[appserver]
+appserver-01.prod.opentours.net lan_ip=10.0.0.2
+
+[appdb]
+appdb-01.prod.opentours.net lan_ip=10.0.0.2
+
+

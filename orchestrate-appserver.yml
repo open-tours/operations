@@ -1,0 +1,45 @@
+---
+- hosts: [appserver]
+  remote_user: "{{ remote_user }}"
+
+  tasks:
+    - name: Install required ubuntu packages
+      apt:
+        name: python3-pip, git, libxml2-dev, libxslt-dev, python3-dev, gdal-bin
+
+    - name: App user is present
+      user:
+        name: "{{ app_user }}"
+
+    - name: Create App home dir
+      file:
+        path: "{{ app_home }}"
+        state: directory
+
+    - name: Chown App dir
+      file:
+        path: "{{ app_home }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+
+    - name: Install pipenv
+      become: true
+      become_user: "root"
+      pip:
+        name: pipenv
+
+    - name: add startup to root/.profile
+      blockinfile:
+        dest: /root/.profile
+        block: |
+          sudo su - {{ app_user }} -s /bin/bash;
+
+    - name: add startup to app user /.profile
+      become: true
+      become_user: "{{ app_user }}"
+      blockinfile:
+        dest: /home/{{ app_user }}/.profile
+        block: |
+          cd {{ app_dir }};
+
+

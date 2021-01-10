@@ -1,0 +1,44 @@
+---
+- hosts: [ appdb ]
+  remote_user: "{{ remote_user }}"
+
+  tasks:
+    - name: Install postgresql-12 and python3-psycopg2
+      apt:
+        name: [ 'postgresql-12', 'python3-psycopg2' ]
+
+    - name: add new configuration to postgresql.conf
+      blockinfile:
+        dest: /etc/postgresql/12/main/postgresql.conf
+        block: |
+          listen_addresses = '{{ lan_ip }}'
+
+    - name: add new configuration to pg_hba.conf
+      blockinfile:
+        dest: /etc/postgresql/12/main/pg_hba.conf
+        block: |
+          host    {{ app_db_name }}   {{ app_db_user }}        {{ hostvars[item].lan_ip }}/32                 md5
+        marker: "# {mark} ANSIBLE MANAGED BLOCK {{item}}"
+      with_items: "{{ groups['appserver'] }}"
+
+    - name: Make sure a postgres is running
+      systemd:
+        enabled: true
+        state: reloaded
+        name: postgresql
+
+    - name: Create app database
+      become: true
+      become_user: postgres
+      postgresql_db:
+        name: "{{ app_db_name }}"
+        state: present
+
+    - name: Change postgres user password
+      become: true
+      become_user: postgres
+      postgresql_user:
+        db: "{{ app_db_name }}"
+        name: "{{ app_db_user }}"
+        password: "{{ app_db_password }}"
+        expires: infinity
